@@ -15,6 +15,7 @@ class JointInference():
         ###########################
         from options.box2mask_test_options import BoxToMaskTestOptions as MaskGenTestOption
         from options.mask2image_test_options import MaskToImageTestOptions as ImgGenTestOption
+        #print('++++++++++++++++++++++++MaskGenTestOption',MaskGenTestOption)
         self.opt_maskgen = load_script_to_opt(joint_opt.maskgen_script, MaskGenTestOption)
         self.opt_imggen = load_script_to_opt(joint_opt.imggen_script, ImgGenTestOption)
 
@@ -63,17 +64,17 @@ class JointInference():
         input_dict = crop_canvas(bbox_sampled, label_original, opt)
 
         # generate layout
-        label_generated = self.G_box2mask.evaluate({
-            'label_map': Variable(input_dict['label'], volatile=True),
-            'mask_ctx_in': Variable(input_dict['mask_ctx_in'], volatile=True),
-            'mask_out': Variable(input_dict['mask_out'], volatile=True),
-            'mask_in': Variable(input_dict['mask_in'], volatile=True),
-            'cls': Variable(input_dict['cls'], volatile=True),
-            'label_map_orig': Variable(input_dict['label_orig'], volatile=True),
-            'mask_ctx_in_orig': Variable(input_dict['mask_ctx_in_orig'], volatile=True),
-            'mask_out_orig': Variable(input_dict['mask_out_orig'], volatile=True)
-        }, target_size=(input_dict['label_orig'].size()[2:4]))
-
+        with torch.no_grad():
+            label_generated = self.G_box2mask.evaluate({
+                'label_map': Variable(input_dict['label']),
+                'mask_ctx_in': Variable(input_dict['mask_ctx_in']),
+                'mask_out': Variable(input_dict['mask_out']),
+                'mask_in': Variable(input_dict['mask_in']),
+                'cls': Variable(input_dict['cls']),
+                'label_map_orig': Variable(input_dict['label_orig']),
+                'mask_ctx_in_orig': Variable(input_dict['mask_ctx_in_orig']),
+                'mask_out_orig': Variable(input_dict['mask_out_orig'])
+            }, target_size=(input_dict['label_orig'].size()[2:4]))
         # paste canvas
         label_canvas = paste_canvas(label_original, label_generated.data, \
             input_dict, resize=False)
@@ -86,13 +87,14 @@ class JointInference():
             img_original=img_original, transform_img=True)
 
         # generate layout
-        img_generated = self.G_mask2img.inference(
-            Variable(input_dict['label'], volatile=True),
-            Variable(torch.zeros_like(input_dict['label']), volatile=True),
-            Variable(input_dict['image'], volatile=True),
-            Variable(input_dict['mask_in'], volatile=True),
-            Variable(input_dict['mask_out'], volatile=True)
-        )
+        with torch.no_grad():
+            img_generated = self.G_mask2img.inference(
+                Variable(input_dict['label']),
+                Variable(torch.zeros_like(input_dict['label'])),
+                Variable(input_dict['image']),
+                Variable(input_dict['mask_in']),
+                Variable(input_dict['mask_out'])
+            )
         # paste canvas
         img_canvas = paste_canvas(img_original, (img_generated.data+1)/2, \
             input_dict, method=Image.BICUBIC, is_img=True)

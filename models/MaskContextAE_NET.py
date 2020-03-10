@@ -6,7 +6,7 @@ import torch.nn.parallel
 import functools
 from torch.autograd import Variable
 import numpy as np
-from layer_util import *
+from models.layer_util import *
 
 class MaskContextAE_NET(nn.Module):
     def __init__(self, opt):
@@ -63,13 +63,13 @@ class MaskContextAE_NET(nn.Module):
             params_dict = self.params_dict
         assert params_dict
         trainable_parameters = []
-        for _, v in params_dict.iteritems():
+        for _, v in params_dict.items():
             trainable_parameters += list(v.parameters())
         return trainable_parameters
 
     def cudafy(self, gpu_id):
         # move your model to gpu
-        for _, v in self.params_dict.iteritems():
+        for _, v in self.params_dict.items():
             v.cuda(gpu_id)
 
     def get_conv_encoder(self):
@@ -222,10 +222,10 @@ class MaskContextAE_NET(nn.Module):
  
     def set_mode(self, eval_mode=1):
         if eval_mode:
-            for _, v in self.params_dict.iteritems():
+            for _, v in self.params_dict.items():
                 v.eval()
             self.eval_mode = 1
         else:
-            for _, v in self.params_dict.iteritems():
+            for _, v in self.params_dict.items():
                 v.train() 
             self.eval_mode = 0

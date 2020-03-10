@@ -30,7 +30,7 @@ def construct_box(inst_root, inst_name, cls_name, dst):
                 continue
             ys,xs = np.where(inst_map==iid)
             ymin, ymax, xmin, xmax = \
-                    ys.min(), ys.max(), xs.min(), xs.max()
+                    int(ys.min()), int(ys.max()), int(xs.min()), int(xs.max())
             cls_label = np.median(cls_map[inst_map==iid])
             inst_info['objects'][str(iid)] = {'bbox': [xmin, ymin, xmax, ymax], 'cls':int(cls_label)}
         # write a file to path
@@ -42,7 +42,7 @@ def construct_box(inst_root, inst_name, cls_name, dst):
 
 # organize image
 if __name__ == '__main__':
-    folder_name = 'datasets/cityscape/'
+    folder_name = '/data1/pnsuau/cityscape/'
     train_img_dst = os.path.join(folder_name, 'train_img')
     train_label_dst = os.path.join(folder_name, 'train_label')
     train_inst_dst = os.path.join(folder_name, 'train_inst')
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     val_label_dst = os.path.join(folder_name, 'val_label')
     val_inst_dst = os.path.join(folder_name, 'val_inst')
     val_bbox_dst = os.path.join(folder_name, 'val_bbox')
-
+    
     if not os.path.exists(train_img_dst):
         os.makedirs(train_img_dst)
     if not os.path.exists(train_label_dst):
@@ -65,23 +65,23 @@ if __name__ == '__main__':
     if not os.path.exists(val_inst_dst):
         os.makedirs(val_inst_dst)
 
-    # train_image
-    copy_file('datasets/cityscape/leftImg8bit/train',\
+    print('train_image')
+    copy_file('/data1/pnsuau/cityscape/leftImg8bit/train',\
             '*_leftImg8bit.png', train_img_dst)
-    # train_label
-    copy_file('datasets/cityscape/gtFine/train',\
+    print('train_label')
+    copy_file('/data1/pnsuau/cityscape/gtFine/train',\
             '*_labelIds.png', train_label_dst)
-    # train_inst
-    copy_file('datasets/cityscape/gtFine/train',\
+    print('train_inst')
+    copy_file('/data1/pnsuau/cityscape/gtFine/train',\
             '*_instanceIds.png', train_inst_dst)
-    # val_image
-    copy_file('datasets/cityscape/leftImg8bit/val',\
+    print('val_image')
+    copy_file('/data1/pnsuau/cityscape/leftImg8bit/val',\
             '*_leftImg8bit.png', val_img_dst)
-    # val_label
-    copy_file('datasets/cityscape/gtFine/val',\
+    print('val_label')
+    copy_file('/data1/pnsuau/cityscape/gtFine/val',\
             '*_labelIds.png', val_label_dst)
-    # val_inst
-    copy_file('datasets/cityscape/gtFine/val',\
+    print('val_inst')
+    copy_file('/data1/pnsuau/cityscape/gtFine/val',\
             '*_instanceIds.png', val_inst_dst)
 
     if not os.path.exists(train_bbox_dst):
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     if not os.path.exists(val_bbox_dst):
         os.makedirs(val_bbox_dst)
     # wrote a bounding box summary 
-    construct_box('datasets/cityscape/gtFine/train',\
+    construct_box('/data1/pnsuau/cityscape/gtFine/train',\
             '*_instanceIds.png', '*_labelIds.png', train_bbox_dst)
-    construct_box('datasets/cityscape/gtFine/val',\
+    construct_box('/data1/pnsuau/cityscape/gtFine/val',\
             '*_instanceIds.png', '*_labelIds.png', val_bbox_dst) 

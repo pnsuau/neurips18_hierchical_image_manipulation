@@ -55,12 +55,12 @@ class BaseModel(torch.nn.Module):
         save_path = os.path.join(self.save_dir, save_filename)
         save_dict = dict()
         save_dict['network'] = dict()
-        for k, v in network_dict.iteritems():
+        for k, v in network_dict.items():
             save_dict['network'][k] = v.cpu().state_dict()
         save_dict['optimizer'] = optimizer.state_dict()
         torch.save(save_dict, save_path)
         if len(gpu_ids) and torch.cuda.is_available():
-            for _, v in network_dict.iteritems():
+            for _, v in network_dict.items():
                 v.cuda()
     
     def delete_network(self, network_label, epoch_label, gpu_ids):
@@ -116,7 +116,7 @@ class BaseModel(torch.nn.Module):
             assert not (network_label == 'G'), 'Generator must exist!'
         else:
             checkpoint = torch.load(save_path, map_location=lambda storage, loc: storage)
-            for k, v in network_dict.iteritems(): 
+            for k, v in network_dict.items():
                 v.load_state_dict(checkpoint['network'][k])
             
             if optimizer is not None:

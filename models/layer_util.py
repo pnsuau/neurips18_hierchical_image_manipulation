@@ -20,7 +20,7 @@ def get_norm_layer(norm_type='instance'):
     if norm_type == 'batch':
         norm_layer = functools.partial(nn.BatchNorm2d, affine=True)
     elif norm_type == 'instance':
-        norm_layer = functools.partial(nn.InstanceNorm2d, affine=False)
+        norm_layer = functools.partial(nn.InstanceNorm2d, affine=False,track_running_stats=True)
     else:
         raise NotImplementedError('normalization layer [%s] is not found' % norm_type)
     return norm_layer
@@ -152,7 +152,7 @@ class ConvResnetBlock(nn.Module):
             nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size,
                 stride=stride, padding=padding),
             norm_fn(out_planes)]
-        for i in xrange(1, num_layers):
+        for i in range(1, num_layers):
             self.deep += [
                 activation_fn,
                 nn.Conv2d(out_planes, out_planes, kernel_size=kernel_size,
@@ -182,6 +182,7 @@ class DeconvResnetBlock(nn.Module):
         else:
             self.shortcut = []
             if in_planes != out_planes:
+                out_planes = int(out_planes)
                 self.shortcut += [
                     nn.Conv2d(in_planes, out_planes, kernel_size=1),
                     norm_fn(out_planes)]
@@ -210,7 +211,7 @@ class DeconvResnetBlock(nn.Module):
             nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size,
                 stride=1, padding=padding),
             norm_fn(out_planes)]
-        for i in xrange(num_layers-1):
+        for i in range(num_layers-1):
             self.deep += [
                 activation_fn,
                 nn.Conv2d(out_planes, out_planes, kernel_size=kernel_size,
@@ -236,7 +237,7 @@ class DeconvResnetBlock(nn.Module):
                     stride=stride, padding=padding, output_padding=output_padding),
                 norm_fn(out_planes)]
         #
-        for i in xrange(num_layers-1):
+        for i in range(num_layers-1):
             padding = int(kernel_size/2)
             self.deep += [
                 activation_fn,

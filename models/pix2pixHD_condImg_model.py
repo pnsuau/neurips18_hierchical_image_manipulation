@@ -11,7 +11,7 @@ import os
 from torch.autograd import Variable
 from util.image_pool import ImagePool
 from .base_model import BaseModel
-from layer_util import *
+from models.layer_util import *
 import util.util as util
 from collections import OrderedDict
 
@@ -156,7 +156,12 @@ class Pix2PixHDModel_condImg(BaseModel):
             inst_map = inst_map.data.cuda()
             edge_map = self.get_edges(inst_map)
             input_label = torch.cat((input_label, edge_map), dim=1) 
-        input_label = Variable(input_label, volatile=infer)
+        if not infer :
+            input_label = Variable(input_label)
+        else:
+            with torch.no_grad():
+                input_label = Variable(input_label)
+            
 
         # real images for training
         assert(real_image is not None)

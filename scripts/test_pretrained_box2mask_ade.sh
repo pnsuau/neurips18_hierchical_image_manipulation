@@ -1,5 +1,5 @@
 python vis_box2mask.py \
---dataroot datasets/ade20k/ \
+--dataroot /data1/pnsuau/ade20k/ \
 --dataloader ade20k \
 --name pretrained_box2mask_ade \
 --prob_bg 0.05 \

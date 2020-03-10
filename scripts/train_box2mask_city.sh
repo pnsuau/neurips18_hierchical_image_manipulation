@@ -1,4 +1,4 @@
-python train_box2mask.py --dataroot=datasets/cityscape/ --dataloader cityscape --name neurips_box2mask_city \
+python3 train_box2mask.py --dataroot=/data1/pnsuau/cityscape/ --dataloader cityscape --name neurips_box2mask_city \
   --use_gan --prob_bg 0.3 --label_nc 35 --output_nc 35 --model AE_maskgen_twostream \
   --which_stream obj_context --tf_log --batchSize 16 --first_conv_stride 1 --first_conv_size 5 \
   --conv_size 4 --num_layers 3 --use_resnetblock 1 --num_resnetblocks 1 --nThreads 2 \

@@ -92,29 +92,32 @@ def crop_canvas(bbox_sampled, label_original, opt, img_original=None, \
 
 def paste_canvas(original, cropped, info_dict, method=Image.NEAREST,
                  resize=True, is_img=False):
+    raw = original.clone()
+    
     if not is_img:
         # Crop window
         x1, y1, x2, y2 = info_dict['crop_pos'].int() # coordinates of crop window
         x1 = max(0,x1); y1 = max(0,y1) # make sure in range
-        x2 = min(2047,x2); y2 = min(1023,y2)
+        #x2 = min(2047,x2); y2 = min(1023,y2)
+        x2 = min(raw.shape[3]-1,x2); y2 = min(raw.shape[2]-1,y2)
 
         recon = cropped[0].type('torch.FloatTensor')
     else:
         # Crop window
         x1, y1, x2, y2 = info_dict['output_bbox_global'].int() # coordinates of crop window
         x1 = max(0,x1); y1 = max(0,y1) # make sure in range
-        x2 = min(2047,x2); y2 = min(1023,y2)
+        #x2 = min(2047,x2); y2 = min(1023,y2)
+        x2 = min(raw.shape[3]-1,x2); y2 = min(raw.shape[2]-1,y2)
         width = x2 - x1 + 1; height = y2 - y1 + 1
 
         x3, y3, x4, y4 = info_dict['output_bbox'].int() # coordinates of crop window
         x3 = max(0,x3); y3 = max(0,y3) # make sure in range
+        x4 = min(raw.shape[3]-1,x4); y4 = min(raw.shape[2]-1,y4)
 
         recon = cropped[0,:,y3:y4+1,x3:x4+1].type('torch.FloatTensor')
         recon = tensor2pil(recon, is_img) # convert to PIL image
         recon = recon.resize([width, height], method) # resize
         recon = pil2tensor(recon, is_img) # convert back to Tensor
-
-    raw = original.clone()
     raw[0,:,y1:y2+1,x1:x2+1] = recon[:,:,:]
 
     return raw

@@ -6,8 +6,8 @@ import torch.nn.parallel
 import functools
 from torch.autograd import Variable
 import numpy as np
-from layer_util import *
-from MaskContextAE_NET import MaskContextAE_NET
+from models.layer_util import *
+from models.MaskContextAE_NET import MaskContextAE_NET
 
 
 class MaskTwoStreamConvSwitch_NET(MaskContextAE_NET):
@@ -152,6 +152,8 @@ class MaskTwoStreamConvSwitch_NET(MaskContextAE_NET):
                         kernel_size=self.conv_size, num_layers=self.num_resnetblocks,
                         norm_fn=self.norm_fn,
                         activation_fn=activation_fn))
+        output_dim=int(output_dim)
+        output_nc=int(output_nc)
         layers.append(
                 nn.Conv2d(output_dim, output_nc, kernel_size=3, padding=1, stride=1))
 

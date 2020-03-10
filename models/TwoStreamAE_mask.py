@@ -6,10 +6,10 @@ import torch.nn as nn
 import os
 from torch.autograd import Variable
 from util.image_pool import ImagePool
-from base_model import BaseModel
-from Discriminator_NET import NLayerDiscriminator, NLayerResDiscriminator, MultiscaleDiscriminator, lr_control 
-from mask_losses import MaskReconLoss
-from losses import compute_gan_loss, GANLoss
+from models.base_model import BaseModel
+from models.Discriminator_NET import NLayerDiscriminator, NLayerResDiscriminator, MultiscaleDiscriminator, lr_control 
+from models.mask_losses import MaskReconLoss
+from models.losses import compute_gan_loss, GANLoss
 
 class TwoStreamAE_mask(BaseModel):
     def __init__(self, opt):
@@ -27,9 +27,9 @@ class TwoStreamAE_mask(BaseModel):
         self.opt = opt
         
         if opt.no_comb:
-            from MaskTwoStreamConvSwitch_NET import MaskTwoStreamConvSwitch_NET as model_factory
+            from models.MaskTwoStreamConvSwitch_NET import MaskTwoStreamConvSwitch_NET as model_factory
         else:
-            from MaskTwoStreamConv_NET import MaskTwoStreamConv_NET as model_factory
+            from models.MaskTwoStreamConv_NET import MaskTwoStreamConv_NET as model_factory
 
         model = self.get_model(model_factory)
         self.netG = model(opt)
@@ -125,6 +125,8 @@ class TwoStreamAE_mask(BaseModel):
         return model_factory
 
     def encode_input(self, label_map, mask_ctx_in, mask_out, mask_in, cls, infer=False):
+        if len(cls.size()) == 1:
+            cls = cls.unsqueeze(0)
         if self.opt.label_nc == 3:
             pass
         else:
@@ -132,12 +134,14 @@ class TwoStreamAE_mask(BaseModel):
             oneHot_size = (size[0], self.opt.label_nc, size[2], size[3])
             oneHot_label = torch.cuda.FloatTensor(torch.Size(oneHot_size)).zero_()
             oneHot_label = oneHot_label.scatter_(1, label_map.data.long().cuda(), 1.0)
+            print(oneHot_label.size())
             
             oneHot_ctx_in = torch.cuda.FloatTensor(torch.Size(oneHot_size)).zero_()
             oneHot_ctx_in = oneHot_ctx_in.scatter_(1, mask_ctx_in.data.long().cuda(), 1.0)
             
-            oneHot_cls = torch.cuda.FloatTensor(size[0], self.opt.label_nc)
-            oneHot_cls = oneHot_cls.scatter_(1, cls.data.long().cuda(), 1.0) 
+            oneHot_cls = torch.cuda.FloatTensor(size[0], self.opt.label_nc)  
+            #oneHot_cls = oneHot_cls.scatter_(1, cls.data.long().cuda(), 1.0)
+            oneHot_cls = oneHot_cls.scatter_(1, cls.data.long().cuda(), 1.0)
             
             oneHot_obj_mask_in = torch.cuda.FloatTensor(torch.Size(oneHot_size)).zero_()
             if not (mask_in is None):
@@ -160,7 +164,7 @@ class TwoStreamAE_mask(BaseModel):
 
     def mask_variable(self, input, mask):
         if not(input.dim()==mask.dim()):
-            mask = mask.unsqueeze(1)
+            mask = mask
         output = input * mask.repeat(1, input.size(1), 1, 1)
         return output
 
@@ -326,12 +330,12 @@ class TwoStreamAE_mask(BaseModel):
             comb_recon_prob = us(comb_recon_prob)
             obj_recon_prob = us(obj_recon_prob)
 
-        if (cls.data[0,0] == self.opt.label_nc-1):
+        if (cls.unsqueeze(0).data[0,0] == self.opt.label_nc-1):
             comb_recon_onehot = self.postprocess_output(comb_recon_prob, gt_mask, gt_one_hot)
             _, comb_recon_label = torch.max(comb_recon_onehot, dim=1, keepdim=True) 
         else:
             obj_mask = (obj_recon_prob > 0.5).float() # (1, 1, H, W)
-            comb_recon_label = (1 - obj_mask) * label_map + obj_mask*cls.data[0,0]
+            comb_recon_label = (1 - obj_mask) * label_map + obj_mask*cls.unsqueeze(0).data[0,0]
         return comb_recon_label            
 
     ###############################################################

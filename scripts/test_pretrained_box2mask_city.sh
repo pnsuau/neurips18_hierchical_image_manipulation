@@ -1,5 +1,5 @@
-python vis_box2mask.py \
---dataroot datasets/cityscape/ \
+python3 vis_box2mask.py \
+--dataroot /data1/pnsuau/cityscape/ \
 --dataloader cityscape \
 --name pretrained_box2mask_city \
 --prob_bg 0.1 \
@@ -26,5 +26,5 @@ python vis_box2mask.py \
 --max_box_size 256 \
 --phase val \
 --how_many 200 \
---gpu_ids 0 \
+--gpu_ids 1 \
 

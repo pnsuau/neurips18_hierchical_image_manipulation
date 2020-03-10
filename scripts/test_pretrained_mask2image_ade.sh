@@ -1,5 +1,5 @@
 python vis_mask2image.py \
---dataroot=datasets/ade20k/ \
+--dataroot /data1/pnsuau/ade20k/ \
 --dataloader ade20k \
 --name pretrained_mask2image_ade \
 --model pix2pixHD_condImg \
@@ -23,5 +23,5 @@ python vis_mask2image.py \
 --use_output_gate \
 --how_many 200 \
 --phase val \
---gpu_ids 0 \
+--gpu_ids 1 \
 

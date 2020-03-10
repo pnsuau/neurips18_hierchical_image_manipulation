@@ -3,7 +3,7 @@ import os
 import sys
 import torch
 from collections import OrderedDict
-
+import numpy as np
 from data.segmentation_dataset import SegmentationDataset
 from util.visualizer import Visualizer
 from util import html
@@ -25,10 +25,8 @@ parser.add_argument('--how_many', type=int,
         default=50,
         help='number of examples to visualize')
 joint_opt = parser.parse_args()
-
 joint_opt.gpu_ids = [joint_opt.gpu_ids]
 joint_inference_model = JointInference(joint_opt)
-
 # Hard-coding some parameters
 joint_inference_model.opt_maskgen.load_image = 1
 joint_inference_model.opt_maskgen.min_box_size = 128
@@ -43,16 +41,29 @@ data_loader.initialize(opt_maskgen)
 
 visualizer = Visualizer(opt_maskgen)
 # create website
-web_dir = os.path.join('./results', 'test_joint_inference', 'val')
+print(joint_opt)
+if joint_opt.maskgen_script == 'scripts/test_pretrained_box2mask_city.sh':
+  web_dir = os.path.join('./results', 'test_joint_inference_city', 'val')
+else:
+  web_dir = os.path.join('./results', 'test_joint_inference_ade', 'val')
+
 webpage = html.HTML(web_dir, 'Experiment = %s, Phase = %s' %
                    ('Joint Inference', 'val'))
 
 # Save directory
 if not os.path.exists('./results'):
   os.makedirs('./results')
-if not os.path.exists('./results/test_joint_inference'):
-  os.makedirs('./results/test_joint_inference')
-save_dir = './results/test_joint_inference/'
+
+if joint_opt.maskgen_script == 'scripts/test_pretrained_box2mask_city.sh':
+  if not os.path.exists('./results/test_joint_inference_city'):
+    os.makedirs('./results/test_joint_inference_city')
+  save_dir = './results/test_joint_inference_city/'
+else:
+  if not os.path.exists('./results/test_joint_inference_ade'):
+    os.makedirs('./results/test_joint_inference_ade')
+  save_dir = './results/test_joint_inference_ade/'
+  
+    
 
 for i in range(data_loader.dataset_size):
   if i >= joint_opt.how_many:
@@ -66,12 +77,11 @@ for i in range(data_loader.dataset_size):
   img_orig = img_orig.unsqueeze(0)
   label_orig = label_orig.unsqueeze(0)
   # List of bboxes
-  bboxs = inst_info['objects'].values()
-
+  bboxs = np.array(list(inst_info['objects'].values()))
+  
   # Select bbox
   bbox_selected = joint_inference_model.sample_bbox(bboxs, opt_maskgen)
-  print(bbox_selected)
-
+  
   print('generating layout...')
   layout, layout_dict, _ = joint_inference_model.gen_layout(
           bbox_selected, label_orig, opt_maskgen)

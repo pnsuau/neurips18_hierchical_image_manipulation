@@ -8,7 +8,7 @@ from torchvision import transforms
 import re
 
 try:
-    from StringIO import StringIO
+    from io import StringIO
 except:
     from cStringIO import StringIO
 import shutil

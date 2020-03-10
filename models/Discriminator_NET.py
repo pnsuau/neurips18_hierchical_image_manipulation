@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from layer_util import *
+from models.layer_util import *
 import numpy as np
 import functools
 
@@ -190,9 +190,10 @@ class NLayerResDiscriminator(nn.Module):
 def lr_control(loss_G, loss_D_real, loss_D_fake, gan_margin=0.3):
     update_g = True
     update_d = True
-    if loss_D_real.data[0] < gan_margin or loss_D_fake.data[0] < gan_margin:
+    #if loss_D_real.data[0] < gan_margin or loss_D_fake.data[0] < gan_margin:
+    if loss_D_real.item() < gan_margin or loss_D_fake.item() < gan_margin:
         update_d = False
-    if loss_D_real.data[0] > (1 - gan_margin) or loss_D_fake.data[0] > (1 - gan_margin):
+    if loss_D_real.item() > (1 - gan_margin) or loss_D_fake.item() > (1 - gan_margin):
         update_g = False
     if not (update_d or update_g):
         update_d = True
@@ -201,13 +202,13 @@ def lr_control(loss_G, loss_D_real, loss_D_fake, gan_margin=0.3):
     d_lr = float(update_d)
     if not update_g:
         print('Froze Generator\t[G=%.3f],[DR=%.3f],[DF=%.3f]' % \
-                (loss_G.data[0], loss_D_real.data[0], loss_D_fake.data[0]))
+                (loss_G.item(), loss_D_real.item(), loss_D_fake.item()))
     elif not update_d:
         print('Froze Discriminator\t[G=%.3f],[DR=%.3f],[DF=%.3f]' % \
-                (loss_G.data[0], loss_D_real.data[0], loss_D_fake.data[0]))
+                (loss_G.item(), loss_D_real.item(), loss_D_fake.item()))
     else:
         print('Update Both\t[G=%.3f],[DR=%.3f],[DF=%.3f]' % \
-                (loss_G.data[0], loss_D_real.data[0], loss_D_fake.data[0]))
+                (loss_G.item(), loss_D_real.item(), loss_D_fake.item()))
     return g_lr, d_lr
 ##############################################################################
 # Utils for Discriminator with Projection Layer + Spectral Normalization
@@ -383,7 +384,7 @@ def switch_grad(net, switch_flag):
 # Discriminator with Projection Layer + Spectral Normalization
 ##############################################################################
 # TODO(sh): update hard-coded dims
-from sn_utils import *
+from models.sn_utils import *
 class Res_Discriminator(nn.Module):
     """
         ResNet Like Discriminator with condition

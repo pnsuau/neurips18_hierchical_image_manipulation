@@ -52,8 +52,8 @@ def loadAde20K(file):
 
 if __name__ == '__main__':
     ade_name = 'ade20k'
-    src_dir = 'datasets'
-    save_dir = os.path.join(src_dir, ade_name)
+    src_dir = '/data1/pnsuau'
+    save_dir = os.path.join(src_dir ,ade_name)
     bbox_train_dir = 'train_bbox'
     bbox_val_dir = 'val_bbox'
     img_train_dir = 'train_img'

@@ -1,5 +1,5 @@
-python vis_mask2image.py \
---dataroot datasets/cityscape/ \
+python3 vis_mask2image.py \
+--dataroot /data1/pnsuau/cityscape/ \
 --dataloader cityscape \
 --name pretrained_mask2image_city \
 --model pix2pixHD_condImg \
@@ -23,4 +23,4 @@ python vis_mask2image.py \
 --use_output_gate \
 --phase val \
 --how_many 200 \
---gpu_ids 0 \
+--gpu_ids 1 \
